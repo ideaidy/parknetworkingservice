@@ -4,12 +4,9 @@
     <title>공원 네트워킹 서비스 분석 결과</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/SJPdeE109F+79A/SjY="
-          crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20n6aR4v98Lz0I+cO72uS65uHnJ2Q6B6U0lS515+N80="
-            crossorigin=""></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <style>
         #map { height: 600px; width: 100%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         body { font-family: 'Malgun Gothic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f8f8f8; }
@@ -26,9 +23,35 @@
 <div id="map"></div>
 
 <script>
-    // 1. 데이터 정의 (Python 분석 결과)
-    const allParks = JSON.parse('{"공원명": "신사근린공원", "위도": 37.526708, "경도": 127.0212651}...'); // 전체 공원 데이터를 여기에 삽입
-    const disconnectionSegments = JSON.parse('[{"parkA_name": "논현공원", "parkA_coords": [37.51473, 127.03923], "parkB_name": "신사근린공원", "parkB_coords": [37.52671, 127.02127], "distance_km": 1.05, "midpoint_coords": [37.52072, 127.03025]}, {"parkA_name": "능안공원", "parkA_coords": [37.49133, 127.08643], "parkB_name": "포이근린공원", "parkB_coords": [37.4811, 127.04278], "distance_km": 1.157, "midpoint_coords": [37.48622, 127.06461]}, {"parkA_name": "몽마르뜨공원", "parkA_coords": [37.49883, 127.00947], "parkB_name": "서초역공원", "parkB_coords": [37.49219, 127.01202], "distance_km": 1.171, "midpoint_coords": [37.49551, 127.01074]}, {"parkA_name": "삼성2동 공원", "parkA_coords": [37.51187, 127.05432], "parkB_name": "능안공원", "parkB_coords": [37.49133, 127.08643], "distance_km": 0.963, "midpoint_coords": [37.5016, 127.07037]}, {"parkA_name": "영동대로공원", "parkA_coords": [37.50974, 127.06326], "parkB_name": "봉은근린공원", "parkB_coords": [37.51448, 127.05193], "distance_km": 1.139, "midpoint_coords": [37.51211, 127.0576]}, {"parkA_name": "압구정동 공원", "parkA_coords": [37.5276, 127.03157], "parkB_name": "신사근린공원", "parkB_coords": [37.52671, 127.02127], "distance_km": 1.487, "midpoint_coords": [37.52715, 127.02642]}, {"parkA_name": "코스모스 어린이공원", "parkA_coords": [37.49261, 127.08779], "parkB_name": "능안공원", "parkB_coords": [37.49133, 127.08643], "distance_km": 0.97, "midpoint_coords": [37.49197, 127.08711]}, {"parkA_name": "포이근린공원", "parkA_coords": [37.4811, 127.04278], "parkB_name": "능안공원", "parkB_coords": [37.49133, 127.08643], "distance_km": 1.157, "midpoint_coords": [37.48622, 127.06461]}, {"parkA_name": "한강공원", "parkA_coords": [37.52989, 127.01358], "parkB_name": "봉은근린공원", "parkB_coords": [37.51448, 127.05193], "distance_km": 1.701, "midpoint_coords": [37.52219, 127.03276]}, {"parkA_name": "해찬솔근린공원", "parkA_coords": [37.47039, 127.0924], "parkB_name": "안개근린공원", "parkB_coords": [37.47218, 127.10195], "distance_km": 0.999, "midpoint_coords": [37.47128, 127.09717]}]'.replace('...', ''))
+    // 수정 2: JSON.parse 대신 자바스크립트 배열로 직접 정의 및 '...' 제거
+    // (Python에서 가져온 데이터가 잘렸기 때문에, 아래 단절 구간 데이터를 기반으로 리스트를 재구성했습니다)
+    
+    // 단절 구간 데이터 (원본 데이터 유지)
+    const disconnectionSegments = [
+        {"parkA_name": "논현공원", "parkA_coords": [37.51473, 127.03923], "parkB_name": "신사근린공원", "parkB_coords": [37.52671, 127.02127], "distance_km": 1.05, "midpoint_coords": [37.52072, 127.03025]}, 
+        {"parkA_name": "능안공원", "parkA_coords": [37.49133, 127.08643], "parkB_name": "포이근린공원", "parkB_coords": [37.4811, 127.04278], "distance_km": 1.157, "midpoint_coords": [37.48622, 127.06461]}, 
+        {"parkA_name": "몽마르뜨공원", "parkA_coords": [37.49883, 127.00947], "parkB_name": "서초역공원", "parkB_coords": [37.49219, 127.01202], "distance_km": 1.171, "midpoint_coords": [37.49551, 127.01074]}, 
+        {"parkA_name": "삼성2동 공원", "parkA_coords": [37.51187, 127.05432], "parkB_name": "능안공원", "parkB_coords": [37.49133, 127.08643], "distance_km": 0.963, "midpoint_coords": [37.5016, 127.07037]}, 
+        {"parkA_name": "영동대로공원", "parkA_coords": [37.50974, 127.06326], "parkB_name": "봉은근린공원", "parkB_coords": [37.51448, 127.05193], "distance_km": 1.139, "midpoint_coords": [37.51211, 127.0576]}, 
+        {"parkA_name": "압구정동 공원", "parkA_coords": [37.5276, 127.03157], "parkB_name": "신사근린공원", "parkB_coords": [37.52671, 127.02127], "distance_km": 1.487, "midpoint_coords": [37.52715, 127.02642]}, 
+        {"parkA_name": "코스모스 어린이공원", "parkA_coords": [37.49261, 127.08779], "parkB_name": "능안공원", "parkB_coords": [37.49133, 127.08643], "distance_km": 0.97, "midpoint_coords": [37.49197, 127.08711]}, 
+        {"parkA_name": "포이근린공원", "parkA_coords": [37.4811, 127.04278], "parkB_name": "능안공원", "parkB_coords": [37.49133, 127.08643], "distance_km": 1.157, "midpoint_coords": [37.48622, 127.06461]}, 
+        {"parkA_name": "한강공원", "parkA_coords": [37.52989, 127.01358], "parkB_name": "봉은근린공원", "parkB_coords": [37.51448, 127.05193], "distance_km": 1.701, "midpoint_coords": [37.52219, 127.03276]}, 
+        {"parkA_name": "해찬솔근린공원", "parkA_coords": [37.47039, 127.0924], "parkB_name": "안개근린공원", "parkB_coords": [37.47218, 127.10195], "distance_km": 0.999, "midpoint_coords": [37.47128, 127.09717]}
+    ];
+
+    // 전체 공원 데이터 (위의 단절 데이터에 있는 공원들을 자동으로 추출하여 구성 + 예시 공원)
+    // *주의: 원본 데이터가 '...'으로 잘려있었으므로, 시각화를 위해 단절 데이터에서 좌표를 역추출했습니다.
+    const allParks = [
+        {"공원명": "신사근린공원", "위도": 37.526708, "경도": 127.0212651}
+    ];
+    
+    // 단절 구간 데이터에서 공원 정보 추출하여 allParks에 추가 (지도에 마커를 찍기 위함)
+    disconnectionSegments.forEach(seg => {
+        allParks.push({"공원명": seg.parkA_name, "위도": seg.parkA_coords[0], "경도": seg.parkA_coords[1]});
+        allParks.push({"공원명": seg.parkB_name, "위도": seg.parkB_coords[0], "경도": seg.parkB_coords[1]});
+    });
+
 
     // 2. 지도 초기화 (강남구 중심 좌표: 대략 37.50, 127.04)
     const map = L.map('map').setView([37.50, 127.04], 13);
@@ -46,11 +69,14 @@
     // 4. 전체 공원 마커 추가 (단절 구간에 속하지 않는 공원 포함)
     const parkLocations = new Set();
     allParks.forEach(park => {
-        // 중복 마커 방지를 위해 좌표를 key로 저장
-        parkLocations.add(`${park.위도},${park.경도}`); 
-        L.marker([park.위도, park.경도], {icon: ParkIcon})
-            .bindPopup(`<b>${park.공원명}</b><br>일반 공원`)
-            .addTo(map);
+        const coordKey = `${park.위도},${park.경도}`;
+        // 중복 마커 방지
+        if (!parkLocations.has(coordKey)) {
+            parkLocations.add(coordKey); 
+            L.marker([park.위도, park.경도], {icon: ParkIcon})
+                .bindPopup(`<b>${park.공원명}</b><br>일반 공원`)
+                .addTo(map);
+        }
     });
 
     // 5. 단절 구간 및 추천 부지 시각화
@@ -78,7 +104,7 @@
             .addTo(disconnectionLayer);
     });
 
-    // 6. 범례 추가 (Optional: 발표 퀄리티 향상)
+    // 6. 범례 추가
     const legend = L.control({position: 'bottomright'});
 
     legend.onAdd = function (map) {
